@@ -1,0 +1,3 @@
+CFLAGS += -DDECK_FORCE=micDeck
+ 
+DEBUG=1

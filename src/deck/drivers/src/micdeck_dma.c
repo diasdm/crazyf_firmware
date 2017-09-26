@@ -9,11 +9,12 @@
 
 void DMA_init(volatile uint16_t *ADCConvertedValue)
 {
+  DMA_DeInit(DMA_Str);
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2,ENABLE);
   DMA_InitTypeDef DMA_InitStructure;
   DMA_StructInit(&DMA_InitStructure);
 
   // Configure DMA2 Stream 4
-  DMA_DeInit(DMA_Str);
   DMA_InitStructure.DMA_Channel = DMA_Channel_0;
   DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t) &ADC1->DR; //Source address
   DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t) ADCConvertedValue; //Destination address

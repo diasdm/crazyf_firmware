@@ -44,8 +44,8 @@ void ADC_init(void)
    ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
    ADC_InitStructure.ADC_ScanConvMode = DISABLE; // 1 Channel
    ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
-   ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
-   ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T2_TRGO;
+   ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_Rising;
+   ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T3_TRGO;
    ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
    ADC_InitStructure.ADC_NbrOfConversion = 1;
    ADC_Init(ADC1, &ADC_InitStructure);
@@ -58,19 +58,4 @@ void ADC_init(void)
 
    // Enable ADC1
    ADC_Cmd(ADC_NUM, ENABLE);
-   ADC_start();
-}
-
-void ADC_start(void)
-{
-   ADC_SoftwareStartConv(ADC_NUM);
-}
-
-uint16_t ADC_get(void)
-{
-   while (ADC_GetSoftwareStartConvStatus(ADC_NUM) != RESET)
-      ;
-
-   return (ADC_GetSoftwareStartConvStatus(ADC_NUM) == RESET)
-      ? ADC_GetConversionValue(ADC_NUM) : -1;
 }

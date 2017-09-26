@@ -17,8 +17,6 @@
 #define STREAM_PORT 0x01
 // I believe the channel number isn't relevant but we can use different channels to stream the sound of different microphones
 #define STREAM_CHANNEL 0
-// Crazyflie GPIO used
-#define GPIO_USED DECK_GPIO_TX2
 // Number of bytes of data sent
 #define DATA_BYTES 29
 #define COUNT_BYTES 1
@@ -59,50 +57,42 @@ static void micTask(xTimerHandle timer)
   }
 }
 
-void TIM6_DAC_IRQHandler(void)
-{
-   if (TIM_GetITStatus(TIM6, TIM_IT_Update)) {
-      ADC_start();
-      TIM_ClearITPendingBit(TIM6, TIM_IT_Update);
-   }
-}
-
 void DMA2_Stream4_IRQHandler(void)
 {
-  if (DMA_GetITStatus(DMA2_Stream4, DMA_IT_TC)) {
-      for(int i = 0; i < SAMPLES_PER_PACKET; i++) {
-	  uint16_t sample = ADCConvertedValue[i];
+  if (DMA_GetITStatus(DMA2_Stream4, DMA_IT_TCIF4)) {
+    if(SAMPLES_PER_PACKET != sampleNum) {
+	for(int i = 0; i < SAMPLES_PER_PACKET; i++) {
+	    uint16_t sample = ADCConvertedValue[i];
 
-	  if(!byteHalf){
-	    dataBuffer[ptr] = (uint8_t)(sample >> 4);
-	    ptr++;
-	    dataBuffer[ptr] = (uint8_t)(sample << 4);
-	    byteHalf = 1;
-	  }else{
-	    dataBuffer[ptr] |= (uint8_t)(sample >> 8);
-	    ptr++;
-	    dataBuffer[ptr] = (uint8_t)(sample);
-	    ptr++;
-	    byteHalf = 0;
-	  }
-	  sampleNum++;
-      }
-    DMA_ClearITPendingBit(DMA2_Stream4, DMA_IT_TC);
+	    if(!byteHalf){
+	      dataBuffer[ptr] = (uint8_t)(sample >> 4);
+	      ptr++;
+	      dataBuffer[ptr] = (uint8_t)(sample << 4);
+	      byteHalf = 1;
+	    }else{
+	      dataBuffer[ptr] |= (uint8_t)(sample >> 8);
+	      ptr++;
+	      dataBuffer[ptr] = (uint8_t)(sample);
+	      ptr++;
+	      byteHalf = 0;
+	    }
+	    sampleNum++;
+	}
+    }
+    DMA_ClearITPendingBit(DMA2_Stream4, DMA_IT_TCIF4);
   }
 }
 
 static void micDeckInit (DeckInfo *info) {
   DEBUG_PRINT("MicDeck initializing.\n");
-  // consoleInit();
   p.header = CRTP_HEADER(STREAM_PORT, STREAM_CHANNEL);
   p.size = DATA_BYTES + COUNT_BYTES;
   // Create and start the send packet timer with a period of 1ms
-  sendPacketTimer = xTimerCreate("sendPacketTimer", M2T(4), pdTRUE, NULL, micTask);
+  sendPacketTimer = xTimerCreate("sendPacketTimer", M2T(2), pdTRUE, NULL, micTask);
   xTimerStart(sendPacketTimer, 100);
-  tmr_sample_init();
-  ADC_init();
+  TIM_init();
   DMA_init(&(ADCConvertedValue[0]));
-  // consoleFlush();
+  ADC_init();
 }
 
 static bool micDeckTest()
@@ -112,10 +102,11 @@ static bool micDeckTest()
 }
 
 static const DeckDriver micDeckDriver = {
-    .name = "micDeck",
+  .name = "micDeck",
   .init = micDeckInit,
   .test = micDeckTest,
-  .usedGpio = DECK_GPIO_MOSI,
+  .usedGpio = DECK_USING_MOSI,
+  .usedPeriph = DECK_USING_TIMER3,
 };
 
 DECK_DRIVER(micDeckDriver);

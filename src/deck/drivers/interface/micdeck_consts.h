@@ -1,8 +1,0 @@
-#ifndef SRC_DECK_DRIVERS_INTERFACE_MICDECK_ADC_H_
-#define SRC_DECK_DRIVERS_INTERFACE_MICDECK_ADC_H_
-
-#include <stdint.h>
-
-void ADC_init(void);
-
-#endif /* SRC_DECK_DRIVERS_INTERFACE_MICDECK_ADC_H_ */

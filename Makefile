@@ -173,9 +173,7 @@ PROJ_OBJ_CF2 += vl53l0x.o
 PROJ_OBJ_CF2 += locodeck.o
 PROJ_OBJ_CF2 += lpsTwrTag.o
 PROJ_OBJ_CF2 += flowdeck.o
-PROJ_OBJ_CF2 += micdeck_dma.o
-PROJ_OBJ_CF2 += micdeck_adc.o
-PROJ_OBJ_CF2 += micdeck_timx.o
+PROJ_OBJ_CF2 += micdeck_periph.o
 PROJ_OBJ_CF2 += micdeck.o
 
 ifeq ($(LPS_TDOA_ENABLE), 1)

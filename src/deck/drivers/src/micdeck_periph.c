@@ -1,7 +1,7 @@
 #include "micdeck_periph.h"
 
 // APB1 clock frequency
-#define APB1_FREQ          42000000
+#define APB1_FREQ          84000000
 // Microphone sampling frequency
 #define SAMPLE_FREQ        8000
 

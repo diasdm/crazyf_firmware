@@ -110,6 +110,8 @@ void crtpRegisterPortCB(int port, CrtpCallback cb);
  */
 int crtpSendPacket(CRTPPacket *p);
 
+int crtpSendPacketISR(CRTPPacket *p);
+
 /**
  * Put a packet in the TX task
  *

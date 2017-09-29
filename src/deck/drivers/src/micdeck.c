@@ -5,8 +5,10 @@
 #include "debug.h"
 #include "deck.h"
 #include "crtp.h"
+#include "console.h"
 #include "FreeRTOS.h"
 #include "timers.h"
+#include "task.h"
 #include "stm32f4xx.h"
 #include "micdeck_periph.h"
 
@@ -22,8 +24,6 @@
 
 // Packet to be sent
 static CRTPPacket p;
-// Number of samples buffered
-static uint8_t bufferFilled = 0;
 // Packet count
 static uint8_t packetCount = 0;
 // Data buffer pointer
@@ -31,55 +31,38 @@ uint8_t ptr = 0;
 // Is in midle of byte flag
 uint8_t byteHalf = 0;
 
-static uint8_t dataBuffer[DATA_BYTES];
 uint16_t sample = 0;
 uint8_t i = 0;
 uint8_t end = 0;
 
-// Timer loop and handle
-static xTimerHandle sendPacketTimer;
-
 volatile uint16_t ADCConvertedValue[SAMPLES_PER_PACKET*2];
 
 void packsData(uint8_t section) {
-  if(!bufferFilled) {
-    ptr = 0;
+  if(xTaskGetTickCount() > 10000) {
+    p.data[0] = packetCount;
+    packetCount++;
+    ptr = 1;
     byteHalf = 0;
     i = SAMPLES_PER_PACKET * section;
     end = SAMPLES_PER_PACKET * (section + 1);
     do{
 	sample = ADCConvertedValue[i];
-
 	if(byteHalf){
-	    dataBuffer[ptr] |= (uint8_t)(sample >> 8);
+	    p.data[ptr] |= (uint8_t)(sample >> 8);
 	    ptr++;
-	    dataBuffer[ptr] = (uint8_t)(sample);
+	    p.data[ptr] = (uint8_t)(sample);
 	    ptr++;
 	    byteHalf = 0;
 	}else{
-	    dataBuffer[ptr] = (uint8_t)(sample >> 4);
+	    p.data[ptr] = (uint8_t)(sample >> 4);
 	    ptr++;
-	    dataBuffer[ptr] = (uint8_t)(sample << 4);
+	    p.data[ptr] = (uint8_t)(sample << 4);
 	    byteHalf = 1;
 	}
 	i++;
     }while(i != end);
-    bufferFilled = 1;
-  }
-}
-
-static void micTask(xTimerHandle timer)
-{
-  if(bufferFilled){
-    // Copies data to package
-    p.data[0] = packetCount;
-    memcpy(&(p.data[1]), dataBuffer, DATA_BYTES);
-    crtpSendPacket(&p);
-    packetCount++;
-    taskENTER_CRITICAL();
-    bufferFilled = 0;
-    memset(dataBuffer, 0, DATA_BYTES);
-    taskEXIT_CRITICAL();
+    crtpSendPacketISR(&p);
+    memset(&(p.data[1]), 0, DATA_BYTES);
   }
 }
 
@@ -99,9 +82,6 @@ static void micDeckInit (DeckInfo *info) {
   DEBUG_PRINT("MicDeck initializing.\n");
   p.header = CRTP_HEADER(STREAM_PORT, STREAM_CHANNEL);
   p.size = DATA_BYTES + COUNT_BYTES;
-  // Create and start the send packet timer with a period of 1ms
-  sendPacketTimer = xTimerCreate("sendPacketTimer", M2T(2), pdTRUE, NULL, micTask);
-  xTimerStart(sendPacketTimer, 10);
 
   ADC_init();
   DMA_init(ADCConvertedValue, (uint8_t) SAMPLES_PER_PACKET);

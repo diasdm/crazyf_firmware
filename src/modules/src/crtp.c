@@ -198,6 +198,11 @@ int crtpSendPacket(CRTPPacket *p)
   return xQueueSend(txQueue, p, 0);
 }
 
+int crtpSendPacketISR(CRTPPacket *p)
+{
+  return xQueueSendToBackFromISR(txQueue, p, 0);
+}
+
 int crtpSendPacketBlock(CRTPPacket *p)
 {
   ASSERT(p); 

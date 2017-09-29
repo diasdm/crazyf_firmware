@@ -1,9 +1,9 @@
 #include "micdeck_periph.h"
 
 // APB1 clock frequency
-#define APB1_FREQ          84000000
+#define APB1_FREQ          42000000
 // Microphone sampling frequency
-#define SAMPLE_FREQ        9500
+#define SAMPLE_FREQ        8000
 
 #define DMA_Str DMA2_Stream4
 #define DMA_IRQ DMA2_Stream4_IRQn
@@ -116,8 +116,8 @@ void DMA_init(volatile uint16_t *ADCConvertedValue, uint8_t SAMPLES_PER_PACKET)
   // Enable DMA2 IRQ Channel
   NVIC_InitTypeDef NVIC_InitStructure;
   NVIC_InitStructure.NVIC_IRQChannel = DMA_IRQ;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x06;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
 }

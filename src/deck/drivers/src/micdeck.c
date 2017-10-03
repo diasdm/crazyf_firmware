@@ -38,7 +38,7 @@ uint8_t end = 0;
 volatile uint16_t ADCConvertedValue[SAMPLES_PER_PACKET*2];
 
 void packsData(uint8_t section) {
-  if(xTaskGetTickCount() > 10000) {
+  //if(xTaskGetTickCount() > 10000) {
     p.data[0] = packetCount;
     packetCount++;
     ptr = 1;
@@ -63,7 +63,7 @@ void packsData(uint8_t section) {
     }while(i != end);
     crtpSendPacketISR(&p);
     memset(&(p.data[1]), 0, DATA_BYTES);
-  }
+  //}
 }
 
 void DMA2_Stream4_IRQHandler(void)

@@ -3,7 +3,7 @@
 // APB1 clock frequency
 #define APB1_FREQ          84000000
 // Microphone sampling frequency
-#define SAMPLE_FREQ        8000
+#define SAMPLE_FREQ        7000
 
 #define DMA_Str DMA2_Stream4
 #define DMA_IRQ DMA2_Stream4_IRQn

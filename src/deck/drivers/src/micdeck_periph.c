@@ -8,6 +8,7 @@
 #define DMA_Str DMA2_Stream4
 #define DMA_IRQ DMA2_Stream4_IRQn
 
+// Analog input used
 // {.periph= RCC_AHB1Periph_GPIOA, .port= GPIOA, .pin=GPIO_Pin_7,  .adcCh=ADC_Channel_7}, /* MOSI */
 
 #define IO_PIN       GPIO_Pin_7
@@ -18,6 +19,9 @@
 #define ADC_NUM      ADC1
 #define ADC_CHANNEL  ADC_Channel_7
 
+/*
+ * Initializes timer
+ */
 void TIM_init(void)
 {
    TIM_DeInit(TIM3);
@@ -39,6 +43,9 @@ void TIM_init(void)
    TIM_Cmd(TIM3, ENABLE);
 }
 
+/*
+ * Initalizes ADC
+ */
 void ADC_init(void)
 {
    // Enable peripheral clocks
@@ -84,6 +91,9 @@ void ADC_init(void)
    ADC_Cmd(ADC_NUM, ENABLE);
 }
 
+/*
+ * DMA setup
+ */
 void DMA_init(volatile uint16_t *ADCConvertedValue, uint8_t SAMPLES_PER_PACKET)
 {
   DMA_DeInit(DMA_Str);

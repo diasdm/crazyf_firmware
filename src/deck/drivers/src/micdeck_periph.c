@@ -31,7 +31,7 @@ void TIM_init(void)
    // Time base configuration
    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
    TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
-   TIM_TimeBaseStructure.TIM_Period = (int)(APB1_FREQ/SAMPLE_FREQ);
+   TIM_TimeBaseStructure.TIM_Period = (int)(APB1_FREQ/SAMPLE_FREQ) - 1;
    TIM_TimeBaseStructure.TIM_Prescaler = 0;
    TIM_TimeBaseStructure.TIM_ClockDivision = 0;
    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
